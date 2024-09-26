@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source remoteControl/functions.sh
+source executionControl/functions.sh
 
 echo "Checking Kubernetes cluster status..."
 
@@ -14,10 +14,27 @@ fi
 cd examples/live-demo/images && ./load_minikube.sh
 cd ../kubernetes
 
+if [ "$1" ]
+then
+  case "$1" in
+    "otel")
+      kubectl create -f teastore-otel-transformer.yaml
+      microservice_id=$(kubectl get pods | grep "otel" | awk '{print $1}')
+      waitForPodStartup $microservice_id 'DEBUG RecordReceiverMain -- Running transformer'
+      ;;
+    "traceanalysis")
+      kubectl create -f teastore-rabbitmq_v16.yaml
+      microservice_id=$(kubectl get pods | grep "rabbitmq" | awk '{print $1}')
+      waitForPodStartup $microservice_id 'Time to start RabbitMQ:'
 
-kubectl create -f teastore-otel-transformer.yaml
-microservice_id=$(kubectl get pods | grep "otel" | awk '{print $1}')
-waitForPodStartup $microservice_id 'DEBUG RecordReceiverMain -- Running transformer'
+      kubectl create -f teastore-demo-server.yaml
+      microservice_id=$(kubectl get pods | grep "demo" | awk '{print $1}')
+      waitForPodStartup $microservice_id 'INFO success: java-app entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)'
+      waitForPodStartup $microservice_id 'INFO success: node-app entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)'
+      ;;
+  esac
+fi
+
 
 # the database will only be on the main server
 kubectl create -f teastore-db.yaml

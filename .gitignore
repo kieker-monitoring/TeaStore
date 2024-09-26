@@ -13,6 +13,12 @@ interfaces/tools.descartes.teastore.entities/.classpath
 /e2e-tests/node_modules/
 /e2e-tests/cypress/videos
 /e2e-tests/cypress/screenshots
+/e2e-tests/package-lock.json
+/examples/live-demo/images/*.tar
+/utilities/tools.descartes.teastore.kieker.oteltransformer/otel-transformer*
+/utilities/tools.descartes.teastore.kieker.demoserver/trace-analysis*
+/utilities/tools.descartes.teastore.dockerbase/kieker.monitoring.properties
 target/
 build.txt
 jmeter.log
+kieker-receiver.log

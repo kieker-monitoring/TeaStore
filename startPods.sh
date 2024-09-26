@@ -34,15 +34,6 @@ source executionControl/functions.sh
 if [ "$2" ]
 then
 	case "$2" in
-		"NO_INSTRUMENTATION") removeAllInstrumentation ;;
-		"DEACTIVATED") 
-			git checkout -- utilities/tools.descartes.teastore.dockerbase/start.sh
-			sed -i 's/\(export JAVA_OPTS=".*\)"/\1 -Dkieker.monitoring.enabled=false"/' utilities/tools.descartes.teastore.dockerbase/start.sh
-			;;
-		"NOLOGGING")
-			git checkout -- utilities/tools.descartes.teastore.dockerbase/start.sh
-			sed -i 's/\(export JAVA_OPTS=".*\)"/\1 -Dkieker.monitoring.writer=kieker.monitoring.writer.dump.DumpWriter -Dkieker.monitoring.core.controller.WriterController.RecordQueueFQN=kieker.monitoring.writer.dump.DumpQueue"/' utilities/tools.descartes.teastore.dockerbase/start.sh
-			;;
 		"OTELTRANSFORMER")
 			# nohup is necessary on Rocky Linux, otherwise, the process gets finished after script end; with Ubuntu, it works without
 			nohup java -jar utilities/receiver.jar 10001 &> "kieker-receiver.log" &
@@ -60,27 +51,6 @@ then
       sed -i "/^kieker.monitoring.writer=kieker.monitoring.writer.tcp.SingleSocketTcpWriter/s/^/#/g" utilities/tools.descartes.teastore.dockerbase/kieker.monitoring.properties
       sed -i "/^kieker.monitoring.writer=kieker.monitoring.writer.filesystem.FileWriter/s/^/#/g" utilities/tools.descartes.teastore.dockerbase/kieker.monitoring.properties
 			sed -i "s/#kieker.monitoring.writer=kieker.monitoring.writer.collector.ChunkingCollector/kieker.monitoring.writer=kieker.monitoring.writer.collector.ChunkingCollector/g" utilities/tools.descartes.teastore.dockerbase/kieker.monitoring.properties
-			;;
-		"KIEKER_ASPECTJ_TEXT")
-			# Do nothing, since this is the default configuration
-			;;
-		"KIEKER_ASPECTJ_BINARY")
-			useBinaryWriterKieker
-			;;
-		"KIEKER_BYTEBUDDY_TEXT")
-			instrumentForKiekerBytebuddy
-			;;
-		"KIEKER_BYTEBUDDY_BINARY")
-			instrumentForKiekerBytebuddy
-			useBinaryWriterKieker
-			;;
-		"OPENTELEMETRY_DEACTIVATED")
-			removeAllInstrumentation
-			instrumentForOpenTelemetry $MY_IP "DEACTIVATED"
-			;;
-		"OPENTELEMETRY_SPANS")
-			removeAllInstrumentation
-			instrumentForOpenTelemetry $MY_IP
 			;;
 		*) echo "Configuration $2 not found; Exiting"; exit 1;;
   esac
